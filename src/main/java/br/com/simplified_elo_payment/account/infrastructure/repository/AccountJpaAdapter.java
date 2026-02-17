@@ -4,9 +4,11 @@ import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
 import br.com.simplified_elo_payment.account.infrastructure.entity.AccountJpaEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 
+@Repository
 public class AccountJpaAdapter implements IAccountRepository {
     @Autowired
     private AccountJpaRepository accountJpaRepository;
