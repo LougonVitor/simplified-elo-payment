@@ -7,6 +7,12 @@ public class AccountEntity {
     private Long UserId;
     private BigDecimal Balance;
 
+    public AccountEntity(Long id, Long userId, BigDecimal balance) {
+        this.setId(id);
+        this.setUserId(userId);
+        this.setBalance(balance);
+    }
+
     public Long getId() {
         return Id;
     }
