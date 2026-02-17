@@ -21,4 +21,8 @@ public class AccountService {
         BigDecimal newBalance = this.iAccountRepository.receiptTransaction(receivedAmount, payingUserId);
         return new AccountServiceResponseDto(newBalance);
     }
+
+    public AccountServiceResponseDto createNewAccount(Long userId, BigDecimal initialBalance) {
+        this.iAccountRepository.
+    }
 }
