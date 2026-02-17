@@ -32,7 +32,7 @@ public class AccountController {
 
     @PostMapping("/create")
     public ResponseEntity<Long> createNewAccount(@RequestBody AccountCreationResquestDto request) {
-        BigDecimal amountConvertedToBigDecimal = new BigDecimal(request.initialValue());
+        BigDecimal amountConvertedToBigDecimal = new BigDecimal(request.initialBalance());
         long userIdConvertedToLong = Long.parseLong(request.userId());
         return ResponseEntity.ok().body(this.accountService.createNewAccount(userIdConvertedToLong, amountConvertedToBigDecimal));
     }
