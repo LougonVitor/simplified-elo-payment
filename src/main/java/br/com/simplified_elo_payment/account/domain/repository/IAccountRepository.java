@@ -1,8 +1,10 @@
 package br.com.simplified_elo_payment.account.domain.repository;
 
+import br.com.simplified_elo_payment.user.domain.entity.UserEntity;
+
 import java.math.BigDecimal;
 
 public interface IAccountRepository {
-    BigDecimal paymentTransaction(BigDecimal paidAmount, Long receivingUser);
-    BigDecimal receiptTransaction(BigDecimal receivedAmount, Long payingUser);
+    BigDecimal paymentTransaction(BigDecimal paidAmount, Long receivingUserId);
+    BigDecimal receiptTransaction(BigDecimal receivedAmount, Long payingUserId);
 }
