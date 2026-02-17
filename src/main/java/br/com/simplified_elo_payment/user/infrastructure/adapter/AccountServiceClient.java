@@ -12,14 +12,14 @@ public class AccountServiceClient implements IPortAccountProvider {
     private final RestClient restClient;
 
     public AccountServiceClient(RestClient.Builder builder) {
-        this.restClient = builder.baseUrl("localhost:8080/account").build();
+        this.restClient = builder.baseUrl("http://localhost:8080/account").build();
     }
 
     @Override
     public boolean creationAccountEvent(Long userId, BigDecimal initialBalance) {
         try{
             var responseExternalCalling = restClient.post()
-                    .uri("/account/create")
+                    .uri("/create")
                     .body(new AccountRequest(initialBalance, userId))
                     .retrieve()
                     .toBodilessEntity();
