@@ -1,4 +1,4 @@
-package com.br;
+package br.com.simplified_elo_payment;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
