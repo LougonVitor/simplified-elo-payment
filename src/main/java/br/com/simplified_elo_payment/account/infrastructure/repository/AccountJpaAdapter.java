@@ -37,4 +37,9 @@ public class AccountJpaAdapter implements IAccountRepository {
     public BigDecimal updateAccountBalance(AccountEntity accountUpdated) {
         return this.accountJpaRepository.save(new AccountJpaEntity(accountUpdated.getId(),accountUpdated.getUserId(), accountUpdated.getBalance())).getBalance();
     }
+
+    @Override
+    public Long createNewAccount(BigDecimal initialValue, Long userId) {
+        return this.accountJpaRepository.save(new AccountJpaEntity(userId, initialValue)).getUserId();
+    }
 }

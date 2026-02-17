@@ -22,4 +22,10 @@ public class AccountJpaEntity {
     @Column(name = "id_user")
     private Long UserId;
     private BigDecimal balance;
+
+    //Constructor to create a new account
+    public AccountJpaEntity(Long userId, BigDecimal initialValue) {
+        setUserId(userId);
+        setBalance(initialValue);
+    }
 }
