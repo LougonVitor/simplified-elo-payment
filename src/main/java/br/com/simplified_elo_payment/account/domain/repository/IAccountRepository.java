@@ -9,4 +9,5 @@ public interface IAccountRepository {
     BigDecimal paymentTransaction(BigDecimal paidAmount, Long receivingUserId);
     BigDecimal receiptTransaction(BigDecimal receivedAmount, Long payingUserId);
     AccountEntity findAccountByUserId(Long userId);
+    BigDecimal updateAccountBalance(AccountEntity accountUpdated);
 }
