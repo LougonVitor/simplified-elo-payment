@@ -18,9 +18,9 @@ public class AccountJpaEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_account")
-    private Long Id;
+    private Long id;
     @Column(name = "id_user")
-    private Long UserId;
+    private Long userId;
     private BigDecimal balance;
 
     //Constructor to create a new account

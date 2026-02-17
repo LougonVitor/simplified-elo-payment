@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Repository
 public class AccountJpaAdapter implements IAccountRepository {
@@ -29,7 +30,7 @@ public class AccountJpaAdapter implements IAccountRepository {
 
     @Override
     public AccountEntity findAccountByUserId(Long userId) {
-        AccountJpaEntity accountJpaEntity = accountJpaRepository.findByUserId(userId);
+        AccountJpaEntity accountJpaEntity = this.accountJpaRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("User not found by ID!"));
         return new AccountEntity(accountJpaEntity.getId(), accountJpaEntity.getUserId(), accountJpaEntity.getBalance());
     }
 
