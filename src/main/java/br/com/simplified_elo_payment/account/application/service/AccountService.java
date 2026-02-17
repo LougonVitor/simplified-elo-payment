@@ -22,7 +22,7 @@ public class AccountService {
         return new AccountServiceResponseDto(newBalance);
     }
 
-    public AccountServiceResponseDto createNewAccount(Long userId, BigDecimal initialBalance) {
-        this.iAccountRepository.
+    public Long createNewAccount(Long userId, BigDecimal initialBalance) {
+        return this.iAccountRepository.createNewAccount(initialBalance, userId);
     }
 }
