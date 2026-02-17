@@ -1,7 +1,6 @@
 package br.com.simplified_elo_payment.account.domain.repository;
 
 import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
-import br.com.simplified_elo_payment.user.domain.entity.UserEntity;
 
 import java.math.BigDecimal;
 
