@@ -21,13 +21,13 @@ public class AccountController {
     @PostMapping("/payment")
     public ResponseEntity<BigDecimal> paymentTransaction(@RequestBody AccountResquestDto requestDto) {
         BigDecimal amountConvertedToBigDecimal = new BigDecimal(requestDto.amount());
-        return ResponseEntity.ok().body(this.accountService.paymentTransaction(amountConvertedToBigDecimal, requestDto.UserId()).newBalance());
+        return ResponseEntity.ok().body(this.accountService.paymentTransaction(amountConvertedToBigDecimal, requestDto.userId()).newBalance());
     }
 
     @PostMapping("/receipt")
     public ResponseEntity<BigDecimal> receiptTransaction(@RequestBody AccountResquestDto requestDto) {
         BigDecimal amountConvertedToBigDecimal = new BigDecimal(requestDto.amount());
-        return ResponseEntity.ok().body(this.accountService.receiptTransaction(amountConvertedToBigDecimal, requestDto.UserId()).newBalance());
+        return ResponseEntity.ok().body(this.accountService.receiptTransaction(amountConvertedToBigDecimal, requestDto.userId()).newBalance());
     }
 
     @PostMapping("/create")
