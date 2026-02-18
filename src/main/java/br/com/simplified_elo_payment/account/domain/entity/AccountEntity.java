@@ -1,11 +1,14 @@
 package br.com.simplified_elo_payment.account.domain.entity;
 
+import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
+
 import java.math.BigDecimal;
 
 public class AccountEntity {
     private Long id;
     private Long userId;
     private BigDecimal balance;
+    private PaymentType paymentType;
 
     public AccountEntity(Long id, Long userId, BigDecimal balance) {
         this.setId(id);
@@ -35,5 +38,13 @@ public class AccountEntity {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public PaymentType getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(PaymentType paymentType) {
+        this.paymentType = paymentType;
     }
 }
