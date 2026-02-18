@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 @Component
 public class AccountServiceClient implements IPortAccountProvider {
@@ -16,11 +17,11 @@ public class AccountServiceClient implements IPortAccountProvider {
     }
 
     @Override
-    public boolean creationAccountEvent(Long userId, BigDecimal initialBalance) {
+    public boolean creationAccountEvent(Long userId, BigDecimal initialBalance, Set<String> paymentTypes) {
         try{
             var responseExternalCalling = restClient.post()
                     .uri("/create")
-                    .body(new AccountRequest(initialBalance, userId))
+                    .body(new AccountRequest(userId, initialBalance, paymentTypes))
                     .retrieve()
                     .toBodilessEntity();
 

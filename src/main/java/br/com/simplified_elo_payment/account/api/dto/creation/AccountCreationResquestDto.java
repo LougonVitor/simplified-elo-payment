@@ -1,3 +1,5 @@
 package br.com.simplified_elo_payment.account.api.dto.creation;
 
-public record AccountCreationResquestDto(String initialBalance, Long userId) {}
+import java.util.Set;
+
+public record AccountCreationResquestDto(String initialBalance, Long userId, Set<String> paymentTypes) {}

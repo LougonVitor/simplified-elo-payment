@@ -13,7 +13,9 @@ public class UserMapper {
                 request.username(),
                 request.email(),
                 request.password(),
-                request.role()
+                request.role(),
+                request.initialBalance(),
+                request.paymentTypes()
         );
     }
 

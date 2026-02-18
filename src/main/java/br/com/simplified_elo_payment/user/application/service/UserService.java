@@ -23,7 +23,7 @@ public class UserService {
 
         UserEntity response = this.iUserRepository.createUser(userEntity);
 
-        this.iPortAccountProvider.creationAccountEvent(response.getId(), new BigDecimal(100));
+        this.iPortAccountProvider.creationAccountEvent(response.getId(), new BigDecimal(createUserCommand.initialBalance()), createUserCommand.paymentTypes());
 
         return new UserServiceResponseDto(response.getId(), response.getUsername(), response.getEmail());
     }

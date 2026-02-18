@@ -35,6 +35,6 @@ public class AccountController {
     @PostMapping("/create")
     public ResponseEntity<Long> createNewAccount(@RequestBody AccountCreationResquestDto request) {
         return ResponseEntity.ok().body(this.accountService
-                .createNewAccount(request.initialBalance(), request.userId()));
+                .createNewAccount(request.initialBalance(), request.userId(), request.paymentTypes()));
     }
 }

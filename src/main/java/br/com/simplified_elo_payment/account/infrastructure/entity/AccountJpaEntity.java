@@ -33,9 +33,10 @@ public class AccountJpaEntity {
     private Set<PaymentType> paymentTypesAccepted = new HashSet<>();
 
     //Constructor to create a new account
-    public AccountJpaEntity(Long userId, BigDecimal initialValue) {
+    public AccountJpaEntity(Long userId, BigDecimal initialValue, Set<PaymentType> paymentTypes) {
         this.setUserId(userId);
         this.setBalance(initialValue);
+        this.setPaymentTypesAccepted(paymentTypes);
     }
 
     public AccountJpaEntity(Long id, Long userId, BigDecimal initialValue) {

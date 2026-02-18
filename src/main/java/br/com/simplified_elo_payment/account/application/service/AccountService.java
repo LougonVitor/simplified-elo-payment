@@ -2,10 +2,13 @@ package br.com.simplified_elo_payment.account.application.service;
 
 import br.com.simplified_elo_payment.account.application.dto.AccountServiceResponseDto;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
+import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AccountService {
@@ -24,8 +27,11 @@ public class AccountService {
         return new AccountServiceResponseDto(newBalance);
     }
 
-    public Long createNewAccount(String initialBalance, Long userId) {
+    public Long createNewAccount(String initialBalance, Long userId, Set<String> paymentTypes) {
         BigDecimal convertedInitialBalance = new BigDecimal(initialBalance);
-        return this.iAccountRepository.createNewAccount(convertedInitialBalance, userId);
+        Set<PaymentType> ConvertedPaymentTypes = paymentTypes.stream()
+                .map(type -> PaymentType.valueOf(type.toUpperCase()))
+                .collect(Collectors.toSet());
+        return this.iAccountRepository.createNewAccount(convertedInitialBalance, userId, ConvertedPaymentTypes);
     }
 }

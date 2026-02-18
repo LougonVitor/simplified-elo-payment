@@ -2,11 +2,13 @@ package br.com.simplified_elo_payment.account.infrastructure.repository;
 
 import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
+import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
 import br.com.simplified_elo_payment.account.infrastructure.entity.AccountJpaEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Set;
 
 @Repository
 public class AccountJpaAdapter implements IAccountRepository {
@@ -39,7 +41,7 @@ public class AccountJpaAdapter implements IAccountRepository {
     }
 
     @Override
-    public Long createNewAccount(BigDecimal initialValue, Long userId) {
-        return this.accountJpaRepository.save(new AccountJpaEntity(userId, initialValue)).getUserId();
+    public Long createNewAccount(BigDecimal initialValue, Long userId, Set<PaymentType> paymentTypes) {
+        return this.accountJpaRepository.save(new AccountJpaEntity(userId, initialValue, paymentTypes)).getUserId();
     }
 }
