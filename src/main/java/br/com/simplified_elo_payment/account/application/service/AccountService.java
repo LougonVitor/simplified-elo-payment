@@ -12,17 +12,20 @@ public class AccountService {
     @Autowired
     private IAccountRepository iAccountRepository;
 
-    public AccountServiceResponseDto paymentTransaction(BigDecimal paidAmount, Long receivingUserId) {
-        BigDecimal newBalance = this.iAccountRepository.paymentTransaction(paidAmount, receivingUserId);
+    public AccountServiceResponseDto paymentTransaction(String paidAmount, Long receivingUserId) {
+        BigDecimal convertedPaidAmount = new BigDecimal(paidAmount);
+        BigDecimal newBalance = this.iAccountRepository.paymentTransaction(convertedPaidAmount, receivingUserId);
         return new AccountServiceResponseDto(newBalance);
     }
 
-    public AccountServiceResponseDto receiptTransaction(BigDecimal receivedAmount, Long payingUserId) {
-        BigDecimal newBalance = this.iAccountRepository.receiptTransaction(receivedAmount, payingUserId);
+    public AccountServiceResponseDto receiptTransaction(String receivedAmount, Long payingUserId) {
+        BigDecimal convertedReceivedAmount = new BigDecimal(receivedAmount);
+        BigDecimal newBalance = this.iAccountRepository.receiptTransaction(convertedReceivedAmount, payingUserId);
         return new AccountServiceResponseDto(newBalance);
     }
 
-    public Long createNewAccount(Long userId, BigDecimal initialBalance) {
-        return this.iAccountRepository.createNewAccount(initialBalance, userId);
+    public Long createNewAccount(String initialBalance, Long userId) {
+        BigDecimal convertedInitialBalance = new BigDecimal(initialBalance);
+        return this.iAccountRepository.createNewAccount(convertedInitialBalance, userId);
     }
 }

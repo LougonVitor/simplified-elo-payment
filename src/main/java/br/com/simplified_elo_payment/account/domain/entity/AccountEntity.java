@@ -3,9 +3,9 @@ package br.com.simplified_elo_payment.account.domain.entity;
 import java.math.BigDecimal;
 
 public class AccountEntity {
-    private Long Id;
-    private Long UserId;
-    private BigDecimal Balance;
+    private Long id;
+    private Long userId;
+    private BigDecimal balance;
 
     public AccountEntity(Long id, Long userId, BigDecimal balance) {
         this.setId(id);
@@ -14,26 +14,26 @@ public class AccountEntity {
     }
 
     public Long getId() {
-        return Id;
+        return this.id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public Long getUserId() {
-        return UserId;
+        return this.userId;
     }
 
     public void setUserId(Long userId) {
-        UserId = userId;
+        this.userId = userId;
     }
 
     public BigDecimal getBalance() {
-        return Balance;
+        return this.balance;
     }
 
     public void setBalance(BigDecimal balance) {
-        Balance = balance;
+        this.balance = balance;
     }
 }
