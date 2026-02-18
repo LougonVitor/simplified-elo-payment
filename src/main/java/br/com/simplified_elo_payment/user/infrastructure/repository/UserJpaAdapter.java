@@ -1,5 +1,6 @@
 package br.com.simplified_elo_payment.user.infrastructure.repository;
 
+import br.com.simplified_elo_payment.common.exception.UserNotFoundException;
 import br.com.simplified_elo_payment.user.domain.entity.UserEntity;
 import br.com.simplified_elo_payment.user.domain.repository.IUserRepository;
 import br.com.simplified_elo_payment.user.domain.valueobject.UserRole;
@@ -40,7 +41,7 @@ public class UserJpaAdapter implements IUserRepository {
     public UserEntity findByUsername(String username) {
         UserJpaEntity userJpaEntity = this.userJpaRepository.findByUsername(username);
 
-        if(userJpaEntity == null) return null;
+        if(userJpaEntity == null) throw new UserNotFoundException("User not found by username: " + username);
 
         return new UserEntity(
                 userJpaEntity.getId(),

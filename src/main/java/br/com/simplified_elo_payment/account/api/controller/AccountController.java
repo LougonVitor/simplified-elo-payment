@@ -3,6 +3,7 @@ package br.com.simplified_elo_payment.account.api.controller;
 import br.com.simplified_elo_payment.account.api.dto.creation.AccountCreationResquestDto;
 import br.com.simplified_elo_payment.account.api.dto.transaction.TransactionRequestDto;
 import br.com.simplified_elo_payment.account.application.service.AccountService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,7 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/payment")
-    public ResponseEntity<String> transaction(@RequestBody TransactionRequestDto transactionRequestDto) {
+    public ResponseEntity<String> transaction(@RequestBody @Valid TransactionRequestDto transactionRequestDto) {
         String response = this.accountService.transaction(
                 transactionRequestDto.amount()
                 , transactionRequestDto.receivingUserId()

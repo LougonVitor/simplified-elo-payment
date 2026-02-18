@@ -9,8 +9,8 @@ import java.math.BigDecimal;
 import java.util.Set;
 
 public interface IAccountRepository {
-    PaymentResponseDto paymentTransaction(AccountEntity receiver, AccountEntity payer);
-    AccountEntity findAccountByUserId(Long userId);
+    PaymentResponseDto transaction(AccountEntity receiver, AccountEntity payer);
+    AccountJpaEntity findAccountByUserId(Long userId);
     AccountJpaEntity updateAccountBalance(AccountEntity accountUpdated);
     Long createNewAccount(BigDecimal initialValue, Long userId, Set<PaymentType> paymentTypes);
 }
