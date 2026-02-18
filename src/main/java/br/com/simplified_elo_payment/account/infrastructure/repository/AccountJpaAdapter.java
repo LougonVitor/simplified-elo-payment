@@ -3,6 +3,7 @@ package br.com.simplified_elo_payment.account.infrastructure.repository;
 import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
 import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
+import br.com.simplified_elo_payment.account.infrastructure.dto.PaymentResponseDto;
 import br.com.simplified_elo_payment.account.infrastructure.entity.AccountJpaEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -16,17 +17,11 @@ public class AccountJpaAdapter implements IAccountRepository {
     private AccountJpaRepository accountJpaRepository;
 
     @Override
-    public BigDecimal paymentTransaction(BigDecimal paidAmount, Long receivingUserId) {
-        AccountEntity foundAccount = this.findAccountByUserId(receivingUserId);
-        foundAccount.setBalance(foundAccount.getBalance().add(paidAmount));
-        return this.updateAccountBalance(foundAccount);
-    }
+    public PaymentResponseDto paymentTransaction(AccountEntity receiver, AccountEntity payer) {
+        AccountJpaEntity updatedReceiver = this.updateAccountBalance(receiver);
+        AccountJpaEntity updatedPayer = this.updateAccountBalance(payer);
 
-    @Override
-    public BigDecimal receiptTransaction(BigDecimal receivedAmount, Long payingUserId) {
-        AccountEntity foundAccount = this.findAccountByUserId(payingUserId);
-        foundAccount.setBalance(foundAccount.getBalance().subtract(receivedAmount));
-        return this.updateAccountBalance(foundAccount);
+        return new PaymentResponseDto(updatedReceiver, updatedPayer);
     }
 
     @Override
@@ -36,8 +31,8 @@ public class AccountJpaAdapter implements IAccountRepository {
     }
 
     @Override
-    public BigDecimal updateAccountBalance(AccountEntity accountUpdated) {
-        return this.accountJpaRepository.save(new AccountJpaEntity(accountUpdated.getId(),accountUpdated.getUserId(), accountUpdated.getBalance())).getBalance();
+    public AccountJpaEntity updateAccountBalance(AccountEntity accountUpdated) {
+        return this.accountJpaRepository.save(new AccountJpaEntity(accountUpdated.getId(),accountUpdated.getUserId(), accountUpdated.getBalance()));
     }
 
     @Override

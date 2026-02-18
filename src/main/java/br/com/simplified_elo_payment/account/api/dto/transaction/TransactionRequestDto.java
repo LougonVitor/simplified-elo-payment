@@ -1,3 +1,3 @@
 package br.com.simplified_elo_payment.account.api.dto.transaction;
 
-public record TransactionRequestDto(String amount, Long userId) {}
+public record TransactionRequestDto(String amount, Long receivingUserId, Long payingUserId) {}

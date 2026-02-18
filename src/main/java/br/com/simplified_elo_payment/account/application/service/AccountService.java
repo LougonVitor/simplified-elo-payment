@@ -1,8 +1,10 @@
 package br.com.simplified_elo_payment.account.application.service;
 
 import br.com.simplified_elo_payment.account.application.dto.AccountServiceResponseDto;
+import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
 import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
+import br.com.simplified_elo_payment.account.infrastructure.dto.PaymentResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,16 +17,20 @@ public class AccountService {
     @Autowired
     private IAccountRepository iAccountRepository;
 
-    public AccountServiceResponseDto paymentTransaction(String paidAmount, Long receivingUserId) {
+    public AccountServiceResponseDto transaction(String paidAmount, Long receivingUserId, Long payingUserId) {
         BigDecimal convertedPaidAmount = new BigDecimal(paidAmount);
-        BigDecimal newBalance = this.iAccountRepository.paymentTransaction(convertedPaidAmount, receivingUserId);
-        return new AccountServiceResponseDto(newBalance);
-    }
 
-    public AccountServiceResponseDto receiptTransaction(String receivedAmount, Long payingUserId) {
-        BigDecimal convertedReceivedAmount = new BigDecimal(receivedAmount);
-        BigDecimal newBalance = this.iAccountRepository.receiptTransaction(convertedReceivedAmount, payingUserId);
-        return new AccountServiceResponseDto(newBalance);
+        AccountEntity foundReceiver = this.iAccountRepository.findAccountByUserId(receivingUserId);
+        AccountEntity foundPayer = this.iAccountRepository.findAccountByUserId(payingUserId);
+
+        foundReceiver.setBalance(foundReceiver.getBalance().add(convertedPaidAmount));
+        foundPayer.setBalance(foundPayer.getBalance().subtract(convertedPaidAmount));
+
+        PaymentResponseDto response = this.iAccountRepository.paymentTransaction(foundReceiver, foundPayer);
+
+        String responseText = new String("Receiver: " + response.receiver().getBalance() + " | Payer: " + response.payer().getBalance());
+
+        return new AccountServiceResponseDto(responseText);
     }
 
     public Long createNewAccount(String initialBalance, Long userId, Set<String> paymentTypes) {

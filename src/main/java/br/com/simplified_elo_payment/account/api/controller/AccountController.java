@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.math.BigDecimal;
-
 @RestController
 @RequestMapping("account")
 public class AccountController {
@@ -19,17 +17,14 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/payment")
-    public ResponseEntity<BigDecimal> paymentTransaction(@RequestBody TransactionRequestDto requestTransactionDto) {
+    public ResponseEntity<String> transaction(@RequestBody TransactionRequestDto transactionRequestDto) {
+        String response = this.accountService.transaction(
+                transactionRequestDto.amount()
+                , transactionRequestDto.receivingUserId()
+                , transactionRequestDto.payingUserId()
+        ).response();
 
-
-        return ResponseEntity.ok().body(this.accountService
-                .paymentTransaction(requestTransactionDto.amount(), requestTransactionDto.userId()).newBalance());
-    }
-
-    @PostMapping("/receipt")
-    public ResponseEntity<BigDecimal> receiptTransaction(@RequestBody TransactionRequestDto requestTransactionDto) {
-        return ResponseEntity.ok().body(this.accountService
-                .receiptTransaction(requestTransactionDto.amount(), requestTransactionDto.userId()).newBalance());
+        return ResponseEntity.ok().body("Transaction successful\n" + response);
     }
 
     @PostMapping("/create")
