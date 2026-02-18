@@ -2,6 +2,7 @@ package br.com.simplified_elo_payment.user.infrastructure.adapter;
 
 import br.com.simplified_elo_payment.user.domain.port.IPortAccountProvider;
 import br.com.simplified_elo_payment.user.infrastructure.adapter.dto.AccountRequest;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -23,6 +24,9 @@ public class AccountServiceClient implements IPortAccountProvider {
                     .uri("/create")
                     .body(new AccountRequest(userId, initialBalance, paymentTypes))
                     .retrieve()
+                    .onStatus(HttpStatusCode::isError, (request, response) -> {
+                        throw new RuntimeException("Erro na API de Account: " + response.getStatusCode());
+                    })
                     .toBodilessEntity();
 
             return responseExternalCalling.getStatusCode().is2xxSuccessful();

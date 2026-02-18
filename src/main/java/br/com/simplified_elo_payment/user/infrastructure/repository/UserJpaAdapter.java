@@ -41,15 +41,17 @@ public class UserJpaAdapter implements IUserRepository {
     public UserEntity findByUsername(String username) {
         UserJpaEntity userJpaEntity = this.userJpaRepository.findByUsername(username);
 
-        if(userJpaEntity == null) throw new UserNotFoundException("User not found by username: " + username);
-
-        return new UserEntity(
-                userJpaEntity.getId(),
-                userJpaEntity.getUsername(),
-                userJpaEntity.getEmail(),
-                userJpaEntity.getPassword(),
-                UserRole.getEnumValue(userJpaEntity.getRole()),
-                userJpaEntity.getCreatedAt()
-        );
+        if(userJpaEntity != null) {
+            return new UserEntity(
+                    userJpaEntity.getId(),
+                    userJpaEntity.getUsername(),
+                    userJpaEntity.getEmail(),
+                    userJpaEntity.getPassword(),
+                    UserRole.getEnumValue(userJpaEntity.getRole()),
+                    userJpaEntity.getCreatedAt()
+            );
+        } else {
+            return null;
+        }
     }
 }

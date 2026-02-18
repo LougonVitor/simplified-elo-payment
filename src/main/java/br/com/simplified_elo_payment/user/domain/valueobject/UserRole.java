@@ -1,8 +1,8 @@
 package br.com.simplified_elo_payment.user.domain.valueobject;
 
 public enum UserRole {
-    ADMIN("admin"),
-    COMMON("common");
+    ADMIN("ADMIN"),
+    COMMON("COMMON");
 
     private final String role;
 
