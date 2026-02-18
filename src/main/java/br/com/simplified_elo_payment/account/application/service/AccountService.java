@@ -9,6 +9,8 @@ import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
 import br.com.simplified_elo_payment.account.infrastructure.dto.PaymentResponseDto;
 import br.com.simplified_elo_payment.account.infrastructure.entity.AccountJpaEntity;
 import br.com.simplified_elo_payment.common.exception.UserNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class AccountService {
     @Autowired
     private IAccountRepository iAccountRepository;
+    private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
     public AccountServiceResponseDto transaction(String paidAmount, Long receivingUserId, Long payingUserId, String paymentType) {
         BigDecimal convertedPaidAmount = new BigDecimal(paidAmount);
@@ -27,6 +30,8 @@ public class AccountService {
         //Searching for receiver and payer, if is not founded, throws an exception
         AccountJpaEntity foundReceiver = this.iAccountRepository.findAccountByUserId(receivingUserId);
         AccountJpaEntity foundPayer = this.iAccountRepository.findAccountByUserId(payingUserId);
+
+        log.info("Processing transaction: Payer {} -> Receiver {} | Amount: {}", payingUserId, receivingUserId, paidAmount);
 
         //Validating all logic
         validateTransaction(foundReceiver, foundPayer);
@@ -51,6 +56,9 @@ public class AccountService {
         Set<PaymentType> ConvertedPaymentTypes = paymentTypes.stream()
                 .map(type -> PaymentType.valueOf(type.toUpperCase()))
                 .collect(Collectors.toSet());
+
+        log.info("Processing account creation: InitialBalance {} -> IdCreated {}", initialBalance, userId);
+
         return this.iAccountRepository.createNewAccount(convertedInitialBalance, userId, ConvertedPaymentTypes);
     }
 
@@ -68,11 +76,16 @@ public class AccountService {
     }
 
     public void validateBalance(BigDecimal paidAmount, BigDecimal payerBalance) {
-        if(paidAmount.compareTo(payerBalance) > 0) throw new InsufficientBalanceException("Insufficient balance!\nBalance: " + payerBalance);
+        if(paidAmount.compareTo(payerBalance) > 0) {
+            log.error("Handling insufficient balance exception: Amount {} -> Paid {}", paidAmount, payerBalance);
+            throw new InsufficientBalanceException("Insufficient balance!\nBalance: " + payerBalance);
+        }
     }
 
     public void validatePaymentType(String paymentType, AccountJpaEntity receiver) {
-        if(!receiver.getPaymentTypesAccepted().contains(PaymentType.valueOf(paymentType)))
+        if(!receiver.getPaymentTypesAccepted().contains(PaymentType.valueOf(paymentType))) {
+            log.error("Handling payment type exception: Type Required {}", paymentType);
             throw new PaymentTypeNotAcceptedException("The receiver cannot accept this payment type");
+        }
     }
 }
