@@ -23,6 +23,7 @@ public class AccountController {
                 transactionRequestDto.amount()
                 , transactionRequestDto.receivingUserId()
                 , transactionRequestDto.payingUserId()
+                , transactionRequestDto.paymentType()
         ).response();
 
         return ResponseEntity.ok().body("Transaction successful\n" + response);

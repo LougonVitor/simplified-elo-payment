@@ -1,6 +1,7 @@
 package br.com.simplified_elo_payment.advice;
 
 import br.com.simplified_elo_payment.account.application.exceptions.InsufficientBalanceException;
+import br.com.simplified_elo_payment.account.application.exceptions.PaymentTypeNotAcceptedException;
 import br.com.simplified_elo_payment.common.dto.ExceptionResponseDto;
 import br.com.simplified_elo_payment.common.exception.UserNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,6 +18,11 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(PaymentTypeNotAcceptedException.class)
+    public ResponseEntity handlePaymentTypeNotAcceptedException(PaymentTypeNotAcceptedException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(InsufficientBalanceException.class)
     public ResponseEntity handleInsufficientBalanceException(InsufficientBalanceException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);

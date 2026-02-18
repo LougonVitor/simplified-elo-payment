@@ -59,7 +59,7 @@ class AccountServiceTest {
         PaymentResponseDto mockResponse = new PaymentResponseDto(receiver, payer);
         when(iAccountRepository.transaction(any(), any())).thenReturn(mockResponse);
 
-        AccountServiceResponseDto result = accountService.transaction("30.00", 1L, 2L);
+        AccountServiceResponseDto result = accountService.transaction("30.00", 1L, 2L, "ELO");
 
         assertNotNull(result);
         assertTrue(result.response().contains("Receiver: 130.00"));

@@ -2,6 +2,7 @@ package br.com.simplified_elo_payment.account.application.service;
 
 import br.com.simplified_elo_payment.account.application.dto.AccountServiceResponseDto;
 import br.com.simplified_elo_payment.account.application.exceptions.InsufficientBalanceException;
+import br.com.simplified_elo_payment.account.application.exceptions.PaymentTypeNotAcceptedException;
 import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
 import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
@@ -20,23 +21,24 @@ public class AccountService {
     @Autowired
     private IAccountRepository iAccountRepository;
 
-    public AccountServiceResponseDto transaction(String paidAmount, Long receivingUserId, Long payingUserId) {
+    public AccountServiceResponseDto transaction(String paidAmount, Long receivingUserId, Long payingUserId, String paymentType) {
         BigDecimal convertedPaidAmount = new BigDecimal(paidAmount);
 
         //Searching for receiver and payer, if is not founded, throws an exception
         AccountJpaEntity foundReceiver = this.iAccountRepository.findAccountByUserId(receivingUserId);
         AccountJpaEntity foundPayer = this.iAccountRepository.findAccountByUserId(payingUserId);
 
-        //Validating the existence of users
+        //Validating all logic
         validateTransaction(foundReceiver, foundPayer);
         validateBalance(convertedPaidAmount, foundPayer.getBalance());
+        validatePaymentType(paymentType, foundReceiver);
 
         //The transaction logic
         foundReceiver.setBalance(foundReceiver.getBalance().add(convertedPaidAmount));
         foundPayer.setBalance(foundPayer.getBalance().subtract(convertedPaidAmount));
 
-        AccountEntity foundReceiverEntity = new AccountEntity(foundReceiver.getId(), foundReceiver.getUserId(), foundReceiver.getBalance());
-        AccountEntity foundPayerEntity = new AccountEntity(foundPayer.getId(), foundPayer.getUserId(), foundPayer.getBalance());
+        AccountEntity foundReceiverEntity = new AccountEntity(foundReceiver.getId(), foundReceiver.getUserId(), foundReceiver.getBalance(), foundReceiver.getPaymentTypesAccepted());
+        AccountEntity foundPayerEntity = new AccountEntity(foundPayer.getId(), foundPayer.getUserId(), foundPayer.getBalance(), foundPayer.getPaymentTypesAccepted());
 
         PaymentResponseDto response = this.iAccountRepository.transaction(foundReceiverEntity, foundPayerEntity);
 
@@ -67,5 +69,10 @@ public class AccountService {
 
     public void validateBalance(BigDecimal paidAmount, BigDecimal payerBalance) {
         if(paidAmount.compareTo(payerBalance) > 0) throw new InsufficientBalanceException("Insufficient balance!\nBalance: " + payerBalance);
+    }
+
+    public void validatePaymentType(String paymentType, AccountJpaEntity receiver) {
+        if(!receiver.getPaymentTypesAccepted().contains(PaymentType.valueOf(paymentType)))
+            throw new PaymentTypeNotAcceptedException("The receiver cannot accept this payment type");
     }
 }

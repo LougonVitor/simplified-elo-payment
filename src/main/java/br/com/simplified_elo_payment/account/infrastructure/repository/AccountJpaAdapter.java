@@ -36,7 +36,7 @@ public class AccountJpaAdapter implements IAccountRepository {
 
     @Override
     public AccountJpaEntity updateAccountBalance(AccountEntity accountUpdated) {
-        return this.accountJpaRepository.save(new AccountJpaEntity(accountUpdated.getId(),accountUpdated.getUserId(), accountUpdated.getBalance()));
+        return this.accountJpaRepository.save(new AccountJpaEntity(accountUpdated.getId(),accountUpdated.getUserId(), accountUpdated.getBalance(), accountUpdated.getPaymentType()));
     }
 
     @Override
