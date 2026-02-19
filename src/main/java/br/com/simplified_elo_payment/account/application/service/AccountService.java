@@ -7,7 +7,6 @@ import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
 import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
 import br.com.simplified_elo_payment.account.infrastructure.dto.PaymentResponseDto;
-import br.com.simplified_elo_payment.account.infrastructure.entity.AccountJpaEntity;
 import br.com.simplified_elo_payment.common.exception.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +27,8 @@ public class AccountService {
         BigDecimal convertedPaidAmount = new BigDecimal(paidAmount);
 
         //Searching for receiver and payer, if is not founded, throws an exception
-        AccountJpaEntity foundReceiver = this.iAccountRepository.findAccountByUserId(receivingUserId);
-        AccountJpaEntity foundPayer = this.iAccountRepository.findAccountByUserId(payingUserId);
+        AccountEntity foundReceiver = this.iAccountRepository.findAccountByUserId(receivingUserId);
+        AccountEntity foundPayer = this.iAccountRepository.findAccountByUserId(payingUserId);
 
         log.info("Processing transaction: Payer {} -> Receiver {} | Amount: {}", payingUserId, receivingUserId, paidAmount);
 
@@ -42,10 +41,7 @@ public class AccountService {
         foundReceiver.setBalance(foundReceiver.getBalance().add(convertedPaidAmount));
         foundPayer.setBalance(foundPayer.getBalance().subtract(convertedPaidAmount));
 
-        AccountEntity foundReceiverEntity = new AccountEntity(foundReceiver.getId(), foundReceiver.getUserId(), foundReceiver.getBalance(), foundReceiver.getPaymentTypesAccepted());
-        AccountEntity foundPayerEntity = new AccountEntity(foundPayer.getId(), foundPayer.getUserId(), foundPayer.getBalance(), foundPayer.getPaymentTypesAccepted());
-
-        PaymentResponseDto response = this.iAccountRepository.transaction(foundReceiverEntity, foundPayerEntity);
+        PaymentResponseDto response = this.iAccountRepository.transaction(foundReceiver, foundPayer);
 
         //Structuring the response
         return new AccountServiceResponseDto("Receiver: " + response.receiver().getBalance() + " | Payer: " + response.payer().getBalance());
@@ -62,7 +58,7 @@ public class AccountService {
         return this.iAccountRepository.createNewAccount(convertedInitialBalance, userId, ConvertedPaymentTypes);
     }
 
-    public void validateTransaction(AccountJpaEntity receiver, AccountJpaEntity payer) {
+    public void validateTransaction(AccountEntity receiver, AccountEntity payer) {
         if(receiver == null && payer == null) {
             throw new UserNotFoundException("Payer and Receiver not found!");
         } else {
@@ -82,8 +78,8 @@ public class AccountService {
         }
     }
 
-    public void validatePaymentType(String paymentType, AccountJpaEntity receiver) {
-        if(!receiver.getPaymentTypesAccepted().contains(PaymentType.valueOf(paymentType))) {
+    public void validatePaymentType(String paymentType, AccountEntity receiver) {
+        if(!receiver.getPaymentType().contains(PaymentType.valueOf(paymentType))) {
             log.error("Handling payment type exception: Type Required {}", paymentType);
             throw new PaymentTypeNotAcceptedException("The receiver cannot accept this payment type");
         }

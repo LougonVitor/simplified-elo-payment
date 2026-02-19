@@ -19,24 +19,27 @@ public class AccountJpaAdapter implements IAccountRepository {
 
     @Override
     public PaymentResponseDto transaction(AccountEntity receiver, AccountEntity payer) {
-        AccountJpaEntity updatedReceiver = this.updateAccountBalance(receiver);
-        AccountJpaEntity updatedPayer = this.updateAccountBalance(payer);
+        AccountEntity updatedReceiver = this.updateAccountBalance(receiver);
+        AccountEntity updatedPayer = this.updateAccountBalance(payer);
 
         return new PaymentResponseDto(updatedReceiver, updatedPayer);
     }
 
     @Override
-    public AccountJpaEntity findAccountByUserId(Long userId) {
-        AccountJpaEntity accountJpaEntity = this.accountJpaRepository
+    public AccountEntity findAccountByUserId(Long userId) {
+        AccountJpaEntity response = this.accountJpaRepository
                 .findByUserId(userId).orElse(null);
                 //.orElseThrow(() -> new RuntimeException("User not found by ID: " + userId));
 
-        return accountJpaEntity;
+        return new AccountEntity(response.getId(), response.getUserId(), response.getBalance(), response.getPaymentTypesAccepted());
     }
 
     @Override
-    public AccountJpaEntity updateAccountBalance(AccountEntity accountUpdated) {
-        return this.accountJpaRepository.save(new AccountJpaEntity(accountUpdated.getId(),accountUpdated.getUserId(), accountUpdated.getBalance(), accountUpdated.getPaymentType()));
+    public AccountEntity updateAccountBalance(AccountEntity accountUpdated) {
+        AccountJpaEntity response = this.accountJpaRepository
+                .save(new AccountJpaEntity(accountUpdated.getId(),accountUpdated.getUserId(), accountUpdated.getBalance(), accountUpdated.getPaymentType()));
+
+        return new AccountEntity(response.getId(), response.getUserId(), response.getBalance(), response.getPaymentTypesAccepted());
     }
 
     @Override

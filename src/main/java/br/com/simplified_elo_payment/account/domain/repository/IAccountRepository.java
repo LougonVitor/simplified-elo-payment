@@ -10,7 +10,7 @@ import java.util.Set;
 
 public interface IAccountRepository {
     PaymentResponseDto transaction(AccountEntity receiver, AccountEntity payer);
-    AccountJpaEntity findAccountByUserId(Long userId);
-    AccountJpaEntity updateAccountBalance(AccountEntity accountUpdated);
+    AccountEntity findAccountByUserId(Long userId);
+    AccountEntity updateAccountBalance(AccountEntity accountUpdated);
     Long createNewAccount(BigDecimal initialValue, Long userId, Set<PaymentType> paymentTypes);
 }

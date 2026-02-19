@@ -1,5 +1,6 @@
 package br.com.simplified_elo_payment.account.infrastructure.entity;
 
+import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -37,6 +38,13 @@ public class AccountJpaEntity {
         this.setUserId(userId);
         this.setBalance(initialValue);
         this.setPaymentTypesAccepted(paymentTypes);
+    }
+
+    //Constructor to create a new account
+    public AccountJpaEntity(AccountEntity domainEntity) {
+        this.setUserId(domainEntity.getUserId());
+        this.setBalance(domainEntity.getBalance());
+        this.setPaymentTypesAccepted(domainEntity.getPaymentType());
     }
 
     public AccountJpaEntity(Long id, Long userId, BigDecimal initialValue) {
