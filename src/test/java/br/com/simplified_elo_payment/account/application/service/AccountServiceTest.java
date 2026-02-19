@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import br.com.simplified_elo_payment.account.application.dto.AccountServiceResponseDto;
 import br.com.simplified_elo_payment.account.application.exceptions.InsufficientBalanceException;
+import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
 import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
 import br.com.simplified_elo_payment.account.infrastructure.dto.PaymentResponseDto;
@@ -20,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,17 +33,19 @@ class AccountServiceTest {
     @InjectMocks
     private AccountService accountService;
 
-    private AccountJpaEntity payer;
-    private AccountJpaEntity receiver;
+    private AccountEntity payer;
+    private AccountEntity receiver;
+
+    private PaymentType paymentTypes;
 
     @BeforeEach
     void setUp() {
         //
         //Basic data for transaction testing.
-        payer = new AccountJpaEntity(1L, new BigDecimal("100.00"));
+        payer = new AccountEntity(1L, new BigDecimal("100.00"));
         payer.setId(10L);
 
-        receiver = new AccountJpaEntity(2L, new BigDecimal("50.00"));
+        receiver = new AccountEntity(2L, new BigDecimal("50.00"));
         receiver.setId(20L);
     }
 
@@ -50,8 +54,13 @@ class AccountServiceTest {
     @Test
     @DisplayName("Should transfer money successfully when balance is sufficient")
     void transactionSuccess() {
+        Set<PaymentType> acceptedPaymentTypes = Set.of(PaymentType.ELO);
+
         receiver.setBalance(new BigDecimal("100.00"));
         payer.setBalance(new BigDecimal("100.00"));
+
+        receiver.setPaymentType(acceptedPaymentTypes);
+        receiver.setPaymentType(acceptedPaymentTypes);
 
         when(iAccountRepository.findAccountByUserId(1L)).thenReturn(receiver);
         when(iAccountRepository.findAccountByUserId(2L)).thenReturn(payer);
@@ -77,7 +86,7 @@ class AccountServiceTest {
         when(iAccountRepository.findAccountByUserId(2L)).thenReturn(payer);
 
         assertThrows(InsufficientBalanceException.class, () -> {
-            accountService.transaction("200.00", 1L, 2L);
+            accountService.transaction("200.00", 1L, 2L, "ELO");
         });
 
         verify(iAccountRepository, never()).transaction(any(), any());
@@ -90,7 +99,7 @@ class AccountServiceTest {
         when(iAccountRepository.findAccountByUserId(1L)).thenReturn(receiver);
 
         assertThrows(UserNotFoundException.class, () -> {
-            accountService.transaction("10.00", 1L, 2L);
+            accountService.transaction("10.00", 1L, 2L, "ELO");
         });
     }
 
