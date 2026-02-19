@@ -39,7 +39,7 @@ public class AccountService {
 
         //The transaction logic
         foundReceiver.deposit(convertedPaidAmount);
-        foundPayer.deposit(convertedPaidAmount);
+        foundPayer.withdraw(convertedPaidAmount);
 
         PaymentResponseDto response = this.iAccountRepository.transaction(foundReceiver, foundPayer);
 
