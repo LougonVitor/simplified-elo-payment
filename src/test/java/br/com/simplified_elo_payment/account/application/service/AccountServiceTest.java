@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import br.com.simplified_elo_payment.account.application.dto.AccountServiceResponseDto;
 import br.com.simplified_elo_payment.account.application.exceptions.InsufficientBalanceException;
+import br.com.simplified_elo_payment.account.application.exceptions.PaymentTypeNotAcceptedException;
 import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
 import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
@@ -50,6 +51,23 @@ class AccountServiceTest {
     }
 
     // --- TRANSACTION TESTS (MONEY TRANSFER) ---
+
+    @Test
+    @DisplayName("Should throw PaymentTypeNotAccepted when when receiver does not accept the payment type")
+    void transactionUnsuccessful() {
+        receiver.setBalance(new BigDecimal("100.00"));
+        payer.setBalance(new BigDecimal("100.00"));
+        receiver.setPaymentType(Set.of(PaymentType.ELO));
+
+        when(iAccountRepository.findAccountByUserId(1L)).thenReturn(receiver);
+        when(iAccountRepository.findAccountByUserId(2L)).thenReturn(payer);
+
+        assertThrows(PaymentTypeNotAcceptedException.class, () -> {
+            this.accountService.transaction("100.00", 1L, 2L, "MASTERCARD");
+        });
+
+        verify(iAccountRepository, never()).transaction(any(), any());
+    }
 
     @Test
     @DisplayName("Should transfer money successfully when balance is sufficient")
