@@ -65,4 +65,14 @@ public class AccountEntity {
     public void setPaymentType(Set<PaymentType> paymentType) {
         this.paymentType = paymentType;
     }
+
+    public void withdraw(BigDecimal value) {
+        BigDecimal currentBalance = this.getBalance();
+        this.setBalance(currentBalance.subtract(value));
+    }
+
+    public void deposit(BigDecimal value) {
+        BigDecimal currentBalance = this.getBalance();
+        this.setBalance(currentBalance.add(value));
+    }
 }

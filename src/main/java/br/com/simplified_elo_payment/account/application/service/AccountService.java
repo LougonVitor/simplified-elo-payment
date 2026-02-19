@@ -33,13 +33,13 @@ public class AccountService {
         log.info("Processing transaction: Payer {} -> Receiver {} | Amount: {}", payingUserId, receivingUserId, paidAmount);
 
         //Validating all logic
-        validateTransaction(foundReceiver, foundPayer);
+        validateUserExistence(foundReceiver, foundPayer);
         validateBalance(convertedPaidAmount, foundPayer.getBalance());
         validatePaymentType(paymentType, foundReceiver);
 
         //The transaction logic
-        foundReceiver.setBalance(foundReceiver.getBalance().add(convertedPaidAmount));
-        foundPayer.setBalance(foundPayer.getBalance().subtract(convertedPaidAmount));
+        foundReceiver.deposit(convertedPaidAmount);
+        foundPayer.deposit(convertedPaidAmount);
 
         PaymentResponseDto response = this.iAccountRepository.transaction(foundReceiver, foundPayer);
 
@@ -58,7 +58,7 @@ public class AccountService {
         return this.iAccountRepository.createNewAccount(convertedInitialBalance, userId, ConvertedPaymentTypes);
     }
 
-    public void validateTransaction(AccountEntity receiver, AccountEntity payer) {
+    public void validateUserExistence(AccountEntity receiver, AccountEntity payer) {
         if(receiver == null && payer == null) {
             throw new UserNotFoundException("Payer and Receiver not found!");
         } else {
