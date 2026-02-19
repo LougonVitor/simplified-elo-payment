@@ -52,9 +52,4 @@ public class AccountJpaEntity {
         this.setUserId(userId);
         this.setBalance(initialValue);
     }
-
-    //Constructor for tests
-    public AccountJpaEntity(Long userId, BigDecimal initialValue) {
-
-    }
 }
