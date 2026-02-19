@@ -11,6 +11,10 @@ public class AccountEntity {
     private BigDecimal balance;
     private Set<PaymentType> paymentType;
 
+    public AccountEntity() {
+
+    }
+
     public AccountEntity(Long id, Long userId, BigDecimal balance) {
         this.setId(id);
         this.setUserId(userId);

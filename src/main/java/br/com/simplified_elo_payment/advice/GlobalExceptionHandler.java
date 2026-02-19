@@ -48,6 +48,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity nullPointerException(NullPointerException exception) {
+        ExceptionResponseDto response = new ExceptionResponseDto(exception.getMessage(), "400");
+        return ResponseEntity.badRequest().body(response);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity threatDuplicateEntity(DataIntegrityViolationException exception) {
         ExceptionResponseDto response = new ExceptionResponseDto("User is already registered", "400");

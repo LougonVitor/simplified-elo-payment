@@ -31,6 +31,7 @@ public class AccountJpaAdapter implements IAccountRepository {
                 .findByUserId(userId).orElse(null);
                 //.orElseThrow(() -> new RuntimeException("User not found by ID: " + userId));
 
+        if(response == null) return null;
         return new AccountEntity(response.getId(), response.getUserId(), response.getBalance(), response.getPaymentTypesAccepted());
     }
 
