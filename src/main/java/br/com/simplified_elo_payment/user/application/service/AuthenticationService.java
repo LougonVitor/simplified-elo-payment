@@ -8,6 +8,7 @@ import br.com.simplified_elo_payment.user.domain.port.IPortAccountProvider;
 import br.com.simplified_elo_payment.user.domain.repository.IUserRepository;
 import br.com.simplified_elo_payment.user.domain.valueobject.UserRole;
 import br.com.simplified_elo_payment.common.security.TokenService;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,6 +44,7 @@ public class AuthenticationService {
         return token;
     }
 
+    @Transactional
     public UserServiceResponseDto createUser(CreateUserCommand createUserCommand) throws Exception {
         if(this.userRepository.findByUsername(createUserCommand.username()) != null) throw new Exception("User already exists!");
 

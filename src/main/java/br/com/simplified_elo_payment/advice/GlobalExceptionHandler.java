@@ -1,7 +1,7 @@
 package br.com.simplified_elo_payment.advice;
 
-import br.com.simplified_elo_payment.account.application.exceptions.InsufficientBalanceException;
-import br.com.simplified_elo_payment.account.application.exceptions.PaymentTypeNotAcceptedException;
+import br.com.simplified_elo_payment.account.domain.exceptions.InsufficientBalanceException;
+import br.com.simplified_elo_payment.account.domain.exceptions.PaymentTypeNotAcceptedException;
 import br.com.simplified_elo_payment.common.dto.ExceptionResponseDto;
 import br.com.simplified_elo_payment.common.exception.UserNotFoundException;
 import jakarta.persistence.EntityNotFoundException;

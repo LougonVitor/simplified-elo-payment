@@ -2,6 +2,7 @@ package br.com.simplified_elo_payment.user.infrastructure.adapter;
 
 import br.com.simplified_elo_payment.user.domain.port.IPortAccountProvider;
 import br.com.simplified_elo_payment.user.infrastructure.adapter.dto.AccountRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -18,6 +19,7 @@ public class AccountServiceClient implements IPortAccountProvider {
     }
 
     @Override
+    @Transactional
     public boolean creationAccountEvent(Long userId, BigDecimal initialBalance, Set<String> paymentTypes) {
         try{
             var responseExternalCalling = restClient.post()
@@ -31,7 +33,7 @@ public class AccountServiceClient implements IPortAccountProvider {
 
             return responseExternalCalling.getStatusCode().is2xxSuccessful();
         } catch (Exception ex) {
-            return false;
+            throw new RuntimeException(ex.getMessage());
         }
     }
 }

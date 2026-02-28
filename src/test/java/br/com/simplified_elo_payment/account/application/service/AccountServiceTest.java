@@ -4,10 +4,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import br.com.simplified_elo_payment.account.application.dto.PerformTransactionCommand;
-import br.com.simplified_elo_payment.account.application.dto.TransactionResult;
-import br.com.simplified_elo_payment.account.application.exceptions.InsufficientBalanceException;
-import br.com.simplified_elo_payment.account.application.exceptions.PaymentTypeNotAcceptedException;
+import br.com.simplified_elo_payment.account.application.dto.creation.PerformCreationCommand;
+import br.com.simplified_elo_payment.account.application.dto.transaction.PerformTransactionCommand;
+import br.com.simplified_elo_payment.account.application.dto.transaction.TransactionResult;
+import br.com.simplified_elo_payment.account.domain.exceptions.InsufficientBalanceException;
+import br.com.simplified_elo_payment.account.domain.exceptions.PaymentTypeNotAcceptedException;
 import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
 import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
@@ -31,7 +32,10 @@ class AccountServiceTest {
     private IAccountRepository iAccountRepository;
 
     @InjectMocks
-    private AccountService accountService;
+    private TransactionService transactionService;
+
+    @InjectMocks
+    private CreationService creationService;
 
     private AccountEntity payer;
     private AccountEntity receiver;
@@ -60,10 +64,10 @@ class AccountServiceTest {
         when(iAccountRepository.findAccountByUserId(1L)).thenReturn(payer);
         when(iAccountRepository.findAccountByUserId(2L)).thenReturn(receiver);
 
-        var test = new PerformTransactionCommand("100.00", receiver.getUserId(), payer.getUserId(), "MASTERCARD");
+        var command = new PerformTransactionCommand("100.00", receiver.getUserId(), payer.getUserId(), "MASTERCARD");
 
         assertThrows(PaymentTypeNotAcceptedException.class, () -> {
-            this.accountService.transaction(test);
+            this.transactionService.executeTransaction(command);
         });
 
         verify(iAccountRepository, never()).transaction(any(), any());
@@ -86,9 +90,9 @@ class AccountServiceTest {
         PaymentResponseDto mockResponse = new PaymentResponseDto(receiver, payer);
         when(iAccountRepository.transaction(any(), any())).thenReturn(mockResponse);
 
-        var test = new PerformTransactionCommand("30.00", receiver.getUserId(), payer.getUserId(), "ELO");
+        var command = new PerformTransactionCommand("30.00", receiver.getUserId(), payer.getUserId(), "ELO");
 
-        TransactionResult result = accountService.transaction(test);
+        TransactionResult result = transactionService.executeTransaction(command);
 
         assertNotNull(result);
         assertTrue(result.receiverCurrentBalance().contains("130.00"));
@@ -105,10 +109,10 @@ class AccountServiceTest {
         when(iAccountRepository.findAccountByUserId(1L)).thenReturn(payer);
         when(iAccountRepository.findAccountByUserId(2L)).thenReturn(receiver);
 
-        var test = new PerformTransactionCommand("200.00", receiver.getUserId(), payer.getUserId(), "ELO");
+        var command = new PerformTransactionCommand("200.00", receiver.getUserId(), payer.getUserId(), "ELO");
 
         assertThrows(InsufficientBalanceException.class, () -> {
-            accountService.transaction(test);
+            transactionService.executeTransaction(command);
         });
 
         verify(iAccountRepository, never()).transaction(any(), any());
@@ -120,10 +124,10 @@ class AccountServiceTest {
         when(iAccountRepository.findAccountByUserId(1L)).thenReturn(null);
         when(iAccountRepository.findAccountByUserId(2L)).thenReturn(receiver);
 
-        var test = new PerformTransactionCommand("10.00", receiver.getUserId(), payer.getUserId(), "ELO");
+        var command = new PerformTransactionCommand("10.00", receiver.getUserId(), payer.getUserId(), "ELO");
 
         assertThrows(UserNotFoundException.class, () -> {
-            accountService.transaction(test);
+            transactionService.executeTransaction(command);
         });
     }
 
@@ -132,14 +136,16 @@ class AccountServiceTest {
     @Test
     @DisplayName("Should create account with correctly mapped payment types")
     void createNewAccountSuccess() {
-        String initialBalance = "150.00";
+        BigDecimal initialBalance = new BigDecimal("150.00");
         Long userId = 100L;
         Set<String> paymentTypesInput = Set.of("ELO", "visa");
 
         when(iAccountRepository.createNewAccount(any(BigDecimal.class), eq(userId), anySet()))
                 .thenReturn(1L);
 
-        Long resultId = accountService.createNewAccount(initialBalance, userId, paymentTypesInput);
+        var command = new PerformCreationCommand(initialBalance, userId, paymentTypesInput);
+
+        Long resultId = creationService.createAccount(command);
 
         assertEquals(1L, resultId);
         verify(iAccountRepository).createNewAccount(
@@ -154,8 +160,10 @@ class AccountServiceTest {
     void createNewAccountInvalidEnum() {
         Set<String> invalidTypes = Set.of("BITCOIN");
 
+        var command = new PerformCreationCommand(new BigDecimal("100.00"), 1L, invalidTypes);
+
         assertThrows(IllegalArgumentException.class, () -> {
-            accountService.createNewAccount("100.00", 1L, invalidTypes);
+            creationService.createAccount(command);
         });
 
         verify(iAccountRepository, never()).createNewAccount(any(), any(), any());

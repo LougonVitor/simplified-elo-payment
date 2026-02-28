@@ -39,17 +39,4 @@ public class AccountJpaEntity {
         this.setBalance(initialValue);
         this.setPaymentTypesAccepted(paymentTypes);
     }
-
-    //Constructor to create a new account
-    public AccountJpaEntity(AccountEntity domainEntity) {
-        this.setUserId(domainEntity.getUserId());
-        this.setBalance(domainEntity.getBalance());
-        this.setPaymentTypesAccepted(domainEntity.getPaymentType());
-    }
-
-    public AccountJpaEntity(Long id, Long userId, BigDecimal initialValue) {
-        this.setId(id);
-        this.setUserId(userId);
-        this.setBalance(initialValue);
-    }
 }

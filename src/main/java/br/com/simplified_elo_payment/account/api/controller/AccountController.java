@@ -1,11 +1,14 @@
 package br.com.simplified_elo_payment.account.api.controller;
 
-import br.com.simplified_elo_payment.account.api.dto.creation.AccountCreationResquestDto;
+import br.com.simplified_elo_payment.account.api.dto.creation.CreationResquestDto;
 import br.com.simplified_elo_payment.account.api.dto.transaction.TransactionRequestDto;
-import br.com.simplified_elo_payment.account.api.mapper.AccountApiMapper;
-import br.com.simplified_elo_payment.account.application.dto.PerformTransactionCommand;
-import br.com.simplified_elo_payment.account.application.dto.TransactionResult;
-import br.com.simplified_elo_payment.account.application.service.AccountService;
+import br.com.simplified_elo_payment.account.api.mapper.CreationMapper;
+import br.com.simplified_elo_payment.account.api.mapper.TransactionMapper;
+import br.com.simplified_elo_payment.account.application.dto.creation.PerformCreationCommand;
+import br.com.simplified_elo_payment.account.application.dto.transaction.PerformTransactionCommand;
+import br.com.simplified_elo_payment.account.application.dto.transaction.TransactionResult;
+import br.com.simplified_elo_payment.account.application.service.CreationService;
+import br.com.simplified_elo_payment.account.application.service.TransactionService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,20 +22,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("account")
 public class AccountController {
     @Autowired
-    private AccountService accountService;
+    private TransactionService accountService;
+    @Autowired
+    private CreationService accountCreationService;
 
     @PostMapping("/payment")
     public ResponseEntity<TransactionResult> transaction(@RequestBody @Valid TransactionRequestDto requestDto) {
-        PerformTransactionCommand mappedRequest = AccountApiMapper.toAccountServiceRequest(requestDto);
+        PerformTransactionCommand mappedRequest = TransactionMapper.toAccountServiceRequest(requestDto);
 
-        TransactionResult response = this.accountService.transaction(mappedRequest);
+        TransactionResult response = this.accountService.executeTransaction(mappedRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Long> createNewAccount(@RequestBody AccountCreationResquestDto request) {
-        return ResponseEntity.ok().body(this.accountService
-                .createNewAccount(request.initialBalance(), request.userId(), request.paymentTypes()));
+    public ResponseEntity<Long> createNewAccount(@RequestBody CreationResquestDto requestDto) {
+        PerformCreationCommand mappedRequest = CreationMapper.toCreationCommand(requestDto);
+
+        Long idCreated = this.accountCreationService.createAccount(mappedRequest);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(idCreated);
     }
 }

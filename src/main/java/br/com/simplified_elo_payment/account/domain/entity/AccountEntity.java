@@ -1,5 +1,7 @@
 package br.com.simplified_elo_payment.account.domain.entity;
 
+import br.com.simplified_elo_payment.account.domain.exceptions.PaymentTypeNotAcceptedException;
+import br.com.simplified_elo_payment.account.domain.exceptions.InsufficientBalanceException;
 import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
 
 import java.math.BigDecimal;
@@ -74,5 +76,16 @@ public class AccountEntity {
     public void deposit(BigDecimal value) {
         BigDecimal currentBalance = this.getBalance();
         this.setBalance(currentBalance.add(value));
+    }
+
+    public boolean canWithdraw(BigDecimal amount) {
+        if(this.getBalance().compareTo(amount) >= 0) return true;
+
+        throw new InsufficientBalanceException("Insufficient balance! Balance: " + amount.toString());
+    }
+
+    public boolean canUsePaymentType(String requeridPaymentType, Set<PaymentType> userPaymentTypes) {
+        if(userPaymentTypes.contains(PaymentType.valueOf(requeridPaymentType))) return true;
+        throw new PaymentTypeNotAcceptedException("The receiver cannot accept this payment type");
     }
 }
