@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import br.com.simplified_elo_payment.account.application.dto.PerformTransactionCommand;
 import br.com.simplified_elo_payment.account.application.dto.TransactionResult;
 import br.com.simplified_elo_payment.account.application.exceptions.InsufficientBalanceException;
 import br.com.simplified_elo_payment.account.application.exceptions.PaymentTypeNotAcceptedException;
@@ -34,7 +35,6 @@ class AccountServiceTest {
 
     private AccountEntity payer;
     private AccountEntity receiver;
-
     private PaymentType paymentTypes;
 
     @BeforeEach
@@ -57,11 +57,13 @@ class AccountServiceTest {
         payer.setBalance(new BigDecimal("100.00"));
         receiver.setPaymentType(Set.of(PaymentType.ELO));
 
-        when(iAccountRepository.findAccountByUserId(1L)).thenReturn(receiver);
-        when(iAccountRepository.findAccountByUserId(2L)).thenReturn(payer);
+        when(iAccountRepository.findAccountByUserId(1L)).thenReturn(payer);
+        when(iAccountRepository.findAccountByUserId(2L)).thenReturn(receiver);
+
+        var test = new PerformTransactionCommand("100.00", receiver.getUserId(), payer.getUserId(), "MASTERCARD");
 
         assertThrows(PaymentTypeNotAcceptedException.class, () -> {
-            this.accountService.transaction("100.00", 1L, 2L, "MASTERCARD");
+            this.accountService.transaction(test);
         });
 
         verify(iAccountRepository, never()).transaction(any(), any());
@@ -78,17 +80,19 @@ class AccountServiceTest {
         receiver.setPaymentType(acceptedPaymentTypes);
         receiver.setPaymentType(acceptedPaymentTypes);
 
-        when(iAccountRepository.findAccountByUserId(1L)).thenReturn(receiver);
-        when(iAccountRepository.findAccountByUserId(2L)).thenReturn(payer);
+        when(iAccountRepository.findAccountByUserId(1L)).thenReturn(payer);
+        when(iAccountRepository.findAccountByUserId(2L)).thenReturn(receiver);
 
         PaymentResponseDto mockResponse = new PaymentResponseDto(receiver, payer);
         when(iAccountRepository.transaction(any(), any())).thenReturn(mockResponse);
 
-        TransactionResult result = accountService.transaction("30.00", 1L, 2L, "ELO");
+        var test = new PerformTransactionCommand("30.00", receiver.getUserId(), payer.getUserId(), "ELO");
+
+        TransactionResult result = accountService.transaction(test);
 
         assertNotNull(result);
-        assertTrue(result.response().contains("Receiver: 130.00"));
-        assertTrue(result.response().contains("Payer: 70.00"));
+        assertTrue(result.receiverCurrentBalance().contains("130.00"));
+        assertTrue(result.payerCurrentBalance().contains("70.00"));
         verify(iAccountRepository, times(1)).transaction(any(), any());
     }
 
@@ -98,11 +102,13 @@ class AccountServiceTest {
         receiver.setBalance(new BigDecimal("100.00"));
         payer.setBalance(new BigDecimal("100.00"));
 
-        when(iAccountRepository.findAccountByUserId(1L)).thenReturn(receiver);
-        when(iAccountRepository.findAccountByUserId(2L)).thenReturn(payer);
+        when(iAccountRepository.findAccountByUserId(1L)).thenReturn(payer);
+        when(iAccountRepository.findAccountByUserId(2L)).thenReturn(receiver);
+
+        var test = new PerformTransactionCommand("200.00", receiver.getUserId(), payer.getUserId(), "ELO");
 
         assertThrows(InsufficientBalanceException.class, () -> {
-            accountService.transaction("200.00", 1L, 2L, "ELO");
+            accountService.transaction(test);
         });
 
         verify(iAccountRepository, never()).transaction(any(), any());
@@ -111,11 +117,13 @@ class AccountServiceTest {
     @Test
     @DisplayName("Should throw UserNotFoundException when Payer is not found")
     void shouldThrowUserNotFoundExceptionWhenPayerIsNull() {
-        when(iAccountRepository.findAccountByUserId(2L)).thenReturn(null);
-        when(iAccountRepository.findAccountByUserId(1L)).thenReturn(receiver);
+        when(iAccountRepository.findAccountByUserId(1L)).thenReturn(null);
+        when(iAccountRepository.findAccountByUserId(2L)).thenReturn(receiver);
+
+        var test = new PerformTransactionCommand("10.00", receiver.getUserId(), payer.getUserId(), "ELO");
 
         assertThrows(UserNotFoundException.class, () -> {
-            accountService.transaction("10.00", 1L, 2L, "ELO");
+            accountService.transaction(test);
         });
     }
 

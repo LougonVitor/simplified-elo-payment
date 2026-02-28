@@ -17,7 +17,7 @@ public class AccountEntity {
 
     //Constructor for tests
     public AccountEntity(Long userId, BigDecimal initialValue) {
-        this.setId(userId);
+        this.setUserId(userId);
         this.setBalance(initialValue);
     }
 
