@@ -1,6 +1,7 @@
 package br.com.simplified_elo_payment.account.application.service;
 
-import br.com.simplified_elo_payment.account.application.dto.AccountServiceResponseDto;
+import br.com.simplified_elo_payment.account.application.dto.PerformTransactionCommand;
+import br.com.simplified_elo_payment.account.application.dto.TransactionResult;
 import br.com.simplified_elo_payment.account.application.exceptions.InsufficientBalanceException;
 import br.com.simplified_elo_payment.account.application.exceptions.PaymentTypeNotAcceptedException;
 import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
@@ -23,28 +24,30 @@ public class AccountService {
     private IAccountRepository iAccountRepository;
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
-    public AccountServiceResponseDto transaction(String paidAmount, Long receivingUserId, Long payingUserId, String paymentType) {
-        BigDecimal convertedPaidAmount = new BigDecimal(paidAmount);
+    public TransactionResult transaction(PerformTransactionCommand request) {
+        BigDecimal convertedPaidAmount = new BigDecimal(request.amount());
 
         //Searching for receiver and payer, if is not founded, throws an exception
-        AccountEntity foundReceiver = this.iAccountRepository.findAccountByUserId(receivingUserId);
-        AccountEntity foundPayer = this.iAccountRepository.findAccountByUserId(payingUserId);
+        AccountEntity foundReceiver = this.iAccountRepository.findAccountByUserId(request.receivingUserID());
+        AccountEntity foundPayer = this.iAccountRepository.findAccountByUserId(request.payingUserId());
 
-        log.info("Processing transaction: Payer {} -> Receiver {} | Amount: {}", payingUserId, receivingUserId, paidAmount);
+        log.info("Processing transaction: Payer {} -> Receiver {} | Amount: {}", request.payingUserId(), request.receivingUserID(), request.amount());
 
         //Validating all logic
         validateUserExistence(foundReceiver, foundPayer);
         validateBalance(convertedPaidAmount, foundPayer.getBalance());
-        validatePaymentType(paymentType, foundReceiver);
+        validatePaymentType(request.paymentType(), foundReceiver);
 
         //The transaction logic
         foundReceiver.deposit(convertedPaidAmount);
         foundPayer.withdraw(convertedPaidAmount);
-
         PaymentResponseDto response = this.iAccountRepository.transaction(foundReceiver, foundPayer);
 
         //Structuring the response
-        return new AccountServiceResponseDto("Receiver: " + response.receiver().getBalance() + " | Payer: " + response.payer().getBalance());
+        return new TransactionResult(
+                response.receiver().getBalance().toString()
+                , response.payer().getBalance().toString()
+        );
     }
 
     public Long createNewAccount(String initialBalance, Long userId, Set<String> paymentTypes) {

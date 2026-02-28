@@ -4,14 +4,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import br.com.simplified_elo_payment.account.application.dto.AccountServiceResponseDto;
+import br.com.simplified_elo_payment.account.application.dto.TransactionResult;
 import br.com.simplified_elo_payment.account.application.exceptions.InsufficientBalanceException;
 import br.com.simplified_elo_payment.account.application.exceptions.PaymentTypeNotAcceptedException;
 import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
 import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
 import br.com.simplified_elo_payment.account.infrastructure.dto.PaymentResponseDto;
-import br.com.simplified_elo_payment.account.infrastructure.entity.AccountJpaEntity;
 import br.com.simplified_elo_payment.common.exception.UserNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,7 +21,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.HashSet;
 import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
@@ -86,7 +84,7 @@ class AccountServiceTest {
         PaymentResponseDto mockResponse = new PaymentResponseDto(receiver, payer);
         when(iAccountRepository.transaction(any(), any())).thenReturn(mockResponse);
 
-        AccountServiceResponseDto result = accountService.transaction("30.00", 1L, 2L, "ELO");
+        TransactionResult result = accountService.transaction("30.00", 1L, 2L, "ELO");
 
         assertNotNull(result);
         assertTrue(result.response().contains("Receiver: 130.00"));
