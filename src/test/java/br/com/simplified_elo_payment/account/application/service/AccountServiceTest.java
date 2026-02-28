@@ -70,7 +70,7 @@ class AccountServiceTest {
             this.transactionService.executeTransaction(command);
         });
 
-        verify(iAccountRepository, never()).transaction(any(), any());
+        verify(iAccountRepository, never()).executeTransaction(any(), any());
     }
 
     @Test
@@ -82,22 +82,19 @@ class AccountServiceTest {
         payer.setBalance(new BigDecimal("100.00"));
 
         receiver.setPaymentType(acceptedPaymentTypes);
-        receiver.setPaymentType(acceptedPaymentTypes);
 
         when(iAccountRepository.findAccountByUserId(1L)).thenReturn(payer);
         when(iAccountRepository.findAccountByUserId(2L)).thenReturn(receiver);
-
-        PaymentResponseDto mockResponse = new PaymentResponseDto(receiver, payer);
-        when(iAccountRepository.transaction(any(), any())).thenReturn(mockResponse);
 
         var command = new PerformTransactionCommand("30.00", receiver.getUserId(), payer.getUserId(), "ELO");
 
         TransactionResult result = transactionService.executeTransaction(command);
 
         assertNotNull(result);
-        assertTrue(result.receiverCurrentBalance().contains("130.00"));
-        assertTrue(result.payerCurrentBalance().contains("70.00"));
-        verify(iAccountRepository, times(1)).transaction(any(), any());
+        assertEquals(new BigDecimal("130.00"), new BigDecimal(result.receiverCurrentBalance()));
+        assertEquals(new BigDecimal("70.00"), payer.getBalance());
+        assertEquals(new BigDecimal("130.00"), receiver.getBalance());
+        verify(iAccountRepository).executeTransaction(receiver, payer);
     }
 
     @Test
@@ -115,7 +112,7 @@ class AccountServiceTest {
             transactionService.executeTransaction(command);
         });
 
-        verify(iAccountRepository, never()).transaction(any(), any());
+        verify(iAccountRepository, never()).executeTransaction(any(), any());
     }
 
     @Test
@@ -140,7 +137,7 @@ class AccountServiceTest {
         Long userId = 100L;
         Set<String> paymentTypesInput = Set.of("ELO", "visa");
 
-        when(iAccountRepository.createNewAccount(any(BigDecimal.class), eq(userId), anySet()))
+        when(iAccountRepository.createAccount(any(BigDecimal.class), eq(userId), anySet()))
                 .thenReturn(1L);
 
         var command = new PerformCreationCommand(initialBalance, userId, paymentTypesInput);
@@ -148,7 +145,7 @@ class AccountServiceTest {
         Long resultId = creationService.createAccount(command);
 
         assertEquals(1L, resultId);
-        verify(iAccountRepository).createNewAccount(
+        verify(iAccountRepository).createAccount(
                 argThat(balance -> balance.compareTo(new BigDecimal("150.00")) == 0),
                 eq(userId),
                 argThat(types -> types.contains(PaymentType.ELO) && types.contains(PaymentType.VISA))
@@ -166,6 +163,6 @@ class AccountServiceTest {
             creationService.createAccount(command);
         });
 
-        verify(iAccountRepository, never()).createNewAccount(any(), any(), any());
+        verify(iAccountRepository, never()).createAccount(any(), any(), any());
     }
 }

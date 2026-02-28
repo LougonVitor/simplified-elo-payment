@@ -28,6 +28,6 @@ public class CreationService {
     }
 
     private Long persist(BigDecimal amount, Long userId, Set<PaymentType> paymentType) {
-        return this.iAccountRepository.createNewAccount(amount, userId, paymentType);
+        return this.iAccountRepository.createAccount(amount, userId, paymentType);
     }
 }

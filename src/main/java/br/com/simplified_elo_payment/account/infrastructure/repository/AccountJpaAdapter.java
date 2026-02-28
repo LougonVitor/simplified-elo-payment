@@ -3,13 +3,12 @@ package br.com.simplified_elo_payment.account.infrastructure.repository;
 import br.com.simplified_elo_payment.account.domain.entity.AccountEntity;
 import br.com.simplified_elo_payment.account.domain.repository.IAccountRepository;
 import br.com.simplified_elo_payment.account.domain.valueobjects.PaymentType;
-import br.com.simplified_elo_payment.account.infrastructure.dto.PaymentResponseDto;
 import br.com.simplified_elo_payment.account.infrastructure.entity.AccountJpaEntity;
+import br.com.simplified_elo_payment.account.infrastructure.mapper.AccountInfraMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 import java.util.Set;
 
 @Repository
@@ -18,33 +17,30 @@ public class AccountJpaAdapter implements IAccountRepository {
     private AccountJpaRepository accountJpaRepository;
 
     @Override
-    public PaymentResponseDto transaction(AccountEntity receiver, AccountEntity payer) {
-        AccountEntity updatedReceiver = this.updateAccountBalance(receiver);
-        AccountEntity updatedPayer = this.updateAccountBalance(payer);
-
-        return new PaymentResponseDto(updatedReceiver, updatedPayer);
+    public void executeTransaction(AccountEntity receiver, AccountEntity payer) {
+        this.updateAccountBalance(receiver);
+        this.updateAccountBalance(payer);
     }
 
     @Override
     public AccountEntity findAccountByUserId(Long userId) {
-        AccountJpaEntity response = this.accountJpaRepository
-                .findByUserId(userId).orElse(null);
+        AccountJpaEntity response = this.accountJpaRepository.findByUserId(userId).orElse(null);
                 //.orElseThrow(() -> new RuntimeException("User not found by ID: " + userId));
-
         if(response == null) return null;
-        return new AccountEntity(response.getId(), response.getUserId(), response.getBalance(), response.getPaymentTypesAccepted());
+        return AccountInfraMapper.toDomainEntity(response);
     }
 
     @Override
     public AccountEntity updateAccountBalance(AccountEntity accountUpdated) {
-        AccountJpaEntity response = this.accountJpaRepository
-                .save(new AccountJpaEntity(accountUpdated.getId(),accountUpdated.getUserId(), accountUpdated.getBalance(), accountUpdated.getPaymentType()));
-
-        return new AccountEntity(response.getId(), response.getUserId(), response.getBalance(), response.getPaymentTypesAccepted());
+        AccountJpaEntity response = AccountInfraMapper.toJpaEntity(accountUpdated);
+        this.accountJpaRepository.save(response);
+        return AccountInfraMapper.toDomainEntity(response);
     }
 
     @Override
-    public Long createNewAccount(BigDecimal initialValue, Long userId, Set<PaymentType> paymentTypes) {
-        return this.accountJpaRepository.save(new AccountJpaEntity(userId, initialValue, paymentTypes)).getUserId();
+    public Long createAccount(BigDecimal initialValue, Long userId, Set<PaymentType> paymentTypes) {
+        AccountJpaEntity response = this.accountJpaRepository.save(new AccountJpaEntity(userId, initialValue, paymentTypes));
+        AccountEntity mappedResponse = AccountInfraMapper.toDomainEntity(response);
+        return mappedResponse.getUserId();
     }
 }

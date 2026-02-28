@@ -13,20 +13,11 @@ public class AccountEntity {
     private BigDecimal balance;
     private Set<PaymentType> paymentType;
 
-    public AccountEntity() {
-
-    }
 
     //Constructor for tests
     public AccountEntity(Long userId, BigDecimal initialValue) {
         this.setUserId(userId);
         this.setBalance(initialValue);
-    }
-
-    public AccountEntity(Long id, Long userId, BigDecimal balance) {
-        this.setId(id);
-        this.setUserId(userId);
-        this.setBalance(balance);
     }
 
     public AccountEntity(Long id, Long userId, BigDecimal balance, Set<PaymentType> paymentType) {

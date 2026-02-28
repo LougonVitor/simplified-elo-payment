@@ -46,7 +46,7 @@ public class TransactionService {
     }
 
     private void persistTransaction(AccountEntity receiver, AccountEntity payer) {
-        this.iAccountRepository.transaction(receiver, payer);
+        this.iAccountRepository.executeTransaction(receiver, payer);
     }
 
     private AccountEntity findAccountByUserId(Long id) {
