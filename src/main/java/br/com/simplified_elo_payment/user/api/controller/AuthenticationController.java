@@ -7,6 +7,7 @@ import br.com.simplified_elo_payment.user.application.dto.UserServiceResponseDto
 import br.com.simplified_elo_payment.user.application.dto.auth.AuthenticationUserCommand;
 import br.com.simplified_elo_payment.user.application.dto.CreateUserCommand;
 import br.com.simplified_elo_payment.user.application.service.AuthenticationService;
+import br.com.simplified_elo_payment.user.application.service.CreationUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,6 +22,9 @@ public class AuthenticationController {
     @Autowired
     private AuthenticationService authenticationServiceService;
 
+    @Autowired
+    private CreationUserService creationUserService;
+
     @PostMapping("/login")
     public ResponseEntity login(@RequestBody @Validated AuthenticationRequestDto request) {
         AuthenticationUserCommand serviceDto = AuthenticationMapper.toAuthenticationUserCommand(request);
@@ -31,7 +35,7 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody @Validated CreateRequestDto request) throws Exception{
         CreateUserCommand createUserCommand = AuthenticationMapper.toCreateUserCommand(request);
-        UserServiceResponseDto response = this.authenticationServiceService.createUser(createUserCommand);
+        UserServiceResponseDto response = this.creationUserService.createUser(createUserCommand);
         return ResponseEntity.ok(response);
     }
 }
