@@ -1,5 +1,6 @@
 package br.com.simplified_elo_payment.user.application.service;
 
+import br.com.simplified_elo_payment.common.exception.UserNotFoundException;
 import br.com.simplified_elo_payment.user.application.dto.CreateUserCommand;
 import br.com.simplified_elo_payment.user.application.dto.UserServiceResponseDto;
 import br.com.simplified_elo_payment.user.application.mapper.UserApplicationMapper;
@@ -34,7 +35,7 @@ public class CreationUserService {
     }
 
     private void validateUserExistence(String username) {
-        if(this.userRepository.findByUsername(username) != null) throw new RuntimeException("User already exists!");
+        if(this.userRepository.findByUsername(username) != null) throw new UserNotFoundException("The user: " + username+ " already exists!");
     }
 
     private void callCreationAccountEvent(Long id, BigDecimal initialBalance, Set<String> paymentTypes) {
